@@ -93,23 +93,11 @@
         background: #ddd;
     }
 
-    .progress-step:before {
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ddd;
-    }
-
     .progress-step:after {
         content: '';
         position: absolute;
         top: 29px;
-        left: 50%;
+        left: 0%;
         transform: translateX(-50%);
         width: 100%;
         height: 4px;
@@ -118,12 +106,13 @@
     }
 
     .progress-step:first-child:after {
-        left: 50%;
-        width: 50%;
+        left: 100%;
+        width: 100%;
     }
 
     .progress-step:last-child:after {
-        width: 50%;
+        left: 0%;
+        width: 100%;
     }
 
     .progress-step.completed:before,
