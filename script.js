@@ -2,32 +2,32 @@ let deliveries = [];
 let currentDelivery = null;
 
 // One-time default on very first load, uncomment & edit:
- const defaultDeliveries = [
-   { ID:1, ZVGP:'Z001', ZRGP:'R001', Data_Coleta:'2025-06-10', Data_Entrega:'2025-06-15', Status:'Aguardando', Endereco_Coleta:'Site A', Endereco_Entrega:'Site B', Incoterms:'FOB', Cotacao:'C123', Material:['Painel','Estrutura'] }
- ];
+//  const defaultDeliveries = [
+//    { ID:1, ZVGP:'Z001', ZRGP:'R001', Data_Coleta:'2025-06-10', Data_Entrega:'2025-06-15', Status:'Aguardando', Endereco_Coleta:'Site A', Endereco_Entrega:'Site B', Incoterms:'FOB', Cotacao:'C123', Material:['Painel','Estrutura'] }
+//  ];
 
 function loadDeliveries() {
-  const raw = localStorage.getItem('deliveries');
-  if (raw) {
-    try {
-      deliveries = JSON.parse(raw);
-    } catch(e) {
-      console.error('Could not parse deliveries from localStorage:', e);
-      deliveries = [];
+    const raw = localStorage.getItem('deliveries');
+    if (raw) {
+        try {
+            deliveries = JSON.parse(raw);
+        } catch (e) {
+            console.error('Could not parse deliveries from localStorage:', e);
+            deliveries = [];
+        }
+    } else {
+        // first ever load → use defaults or start empty:
+        // deliveries = defaultDeliveries.slice();
+        deliveries = [];
     }
-  } else {
-    // first ever load → use defaults or start empty:
-    // deliveries = defaultDeliveries.slice();
-    deliveries = [];
-  }
 }
 
 function saveDeliveries() {
-  try {
-    localStorage.setItem('deliveries', JSON.stringify(deliveries));
-  } catch(e) {
-    console.error('Could not save deliveries to localStorage:', e);
-  }
+    try {
+        localStorage.setItem('deliveries', JSON.stringify(deliveries));
+    } catch (e) {
+        console.error('Could not save deliveries to localStorage:', e);
+    }
 }
 
 const tableBody = document.getElementById('delivery-table-body');
@@ -88,19 +88,69 @@ function populateForm() {
 function renderMaterials() {
     const listDiv = document.getElementById('material-list');
     listDiv.innerHTML = '';
+
     currentDelivery.Material.forEach((mat, idx) => {
         const div = document.createElement('div');
-        const inp = document.createElement('input'); inp.value = mat; inp.disabled = (currentDelivery.Status !== 'Aguardando'); inp.dataset.idx = idx;
-        inp.addEventListener('input', e => { currentDelivery.Material[e.target.dataset.idx] = e.target.value; });
-        div.appendChild(inp);
+
+        // — ID field —
+        const idInput = document.createElement('input');
+        idInput.placeholder = 'Material ID';
+        idInput.value = mat.id || '';
+        idInput.disabled = (currentDelivery.Status !== 'Aguardando');
+        idInput.dataset.idx = idx;
+        idInput.dataset.field = 'id';
+        idInput.addEventListener('input', e => {
+            currentDelivery.Material[e.target.dataset.idx].id = e.target.value;
+        });
+        div.appendChild(idInput);
+
+        // — Description field —
+        const descInput = document.createElement('input');
+        descInput.placeholder = 'Descrição';
+        descInput.value = mat.description || '';
+        descInput.disabled = (currentDelivery.Status !== 'Aguardando');
+        descInput.dataset.idx = idx;
+        descInput.dataset.field = 'description';
+        descInput.addEventListener('input', e => {
+            currentDelivery.Material[e.target.dataset.idx].description = e.target.value;
+        });
+        div.appendChild(descInput);
+
+        // — Quantity field —
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.placeholder = 'Quantidade';
+        qtyInput.value = mat.quantity || '';
+        qtyInput.disabled = (currentDelivery.Status !== 'Aguardando');
+        qtyInput.dataset.idx = idx;
+        qtyInput.dataset.field = 'quantity';
+        qtyInput.addEventListener('input', e => {
+            currentDelivery.Material[e.target.dataset.idx].quantity = e.target.value;
+        });
+        div.appendChild(qtyInput);
+
+        // — Remove button (only when editable) —
         if (currentDelivery.Status === 'Aguardando') {
-            const rm = document.createElement('button'); rm.textContent = 'X'; rm.addEventListener('click', () => { currentDelivery.Material.splice(idx, 1); renderMaterials(); }); div.appendChild(rm);
+            const rm = document.createElement('button');
+            rm.textContent = 'X';
+            rm.addEventListener('click', () => {
+                currentDelivery.Material.splice(idx, 1);
+                renderMaterials();
+            });
+            div.appendChild(rm);
         }
+
         listDiv.appendChild(div);
     });
 }
 
-document.getElementById('add-material').addEventListener('click', () => { if (currentDelivery.Status === 'Aguardando') { currentDelivery.Material.push(''); renderMaterials(); } });
+document.getElementById('add-material').addEventListener('click', () => {
+    if (currentDelivery.Status === 'Aguardando') {
+        currentDelivery.Material.push({ id: '', description: '', quantity: '' });
+        renderMaterials();
+    }
+});
+
 document.getElementById('Status').addEventListener('change', () => { currentDelivery.Status = document.getElementById('Status').value; setFormState(); updateProgress(); });
 
 // Save button handler
@@ -110,7 +160,7 @@ document.getElementById('save-button').addEventListener('click', () => {
     });
     if (!deliveries.find(d => d.ID === currentDelivery.ID)) { deliveries.push(currentDelivery); }
     saveDeliveries();
-    renderTable(); 
+    renderTable();
     showList();
 });
 

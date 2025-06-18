@@ -34,6 +34,17 @@
         padding: 20px;
     }
 
+    #material-list div {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+
+    #material-list input {
+        flex: 1;
+        padding: 4px;
+    }
+
     .screen {
         display: none;
     }
@@ -64,11 +75,22 @@
         align-items: center;
         margin-bottom: 20px;
     }
-
     .progress-step {
         position: relative;
         text-align: center;
         flex: 1;
+    }
+
+    .progress-step:before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ddd;
     }
 
     .progress-step:before {
