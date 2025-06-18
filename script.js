@@ -1,8 +1,35 @@
-// Dados de exemplo
-let deliveries = [
-    { ID: 1, ZVGP: 'Z001', ZRGP: 'R001', Data_Coleta: '2025-06-10', Data_Entrega: '2025-06-15', Status: 'Aguardando', Endereco_Coleta: 'Site A', Endereco_Entrega: 'Site B', Incoterms: 'FOB', Cotacao: 'C123', Material: ['Painel', 'Estrutura'] }
-];
+let deliveries = [];
 let currentDelivery = null;
+
+// One-time default on very first load, uncomment & edit:
+ const defaultDeliveries = [
+   { ID:1, ZVGP:'Z001', ZRGP:'R001', Data_Coleta:'2025-06-10', Data_Entrega:'2025-06-15', Status:'Aguardando', Endereco_Coleta:'Site A', Endereco_Entrega:'Site B', Incoterms:'FOB', Cotacao:'C123', Material:['Painel','Estrutura'] }
+ ];
+
+function loadDeliveries() {
+  const raw = localStorage.getItem('deliveries');
+  if (raw) {
+    try {
+      deliveries = JSON.parse(raw);
+    } catch(e) {
+      console.error('Could not parse deliveries from localStorage:', e);
+      deliveries = [];
+    }
+  } else {
+    // first ever load → use defaults or start empty:
+    // deliveries = defaultDeliveries.slice();
+    deliveries = [];
+  }
+}
+
+function saveDeliveries() {
+  try {
+    localStorage.setItem('deliveries', JSON.stringify(deliveries));
+  } catch(e) {
+    console.error('Could not save deliveries to localStorage:', e);
+  }
+}
+
 const tableBody = document.getElementById('delivery-table-body');
 const listScreen = document.getElementById('list-screen');
 const detailScreen = document.getElementById('detail-screen');
@@ -75,12 +102,16 @@ function renderMaterials() {
 
 document.getElementById('add-material').addEventListener('click', () => { if (currentDelivery.Status === 'Aguardando') { currentDelivery.Material.push(''); renderMaterials(); } });
 document.getElementById('Status').addEventListener('change', () => { currentDelivery.Status = document.getElementById('Status').value; setFormState(); updateProgress(); });
+
+// Save button handler
 document.getElementById('save-button').addEventListener('click', () => {
     ['ZVGP', 'ZRGP', 'Data_Coleta', 'Data_Entrega', 'Endereco_Coleta', 'Endereco_Entrega', 'Incoterms', 'Cotacao'].forEach(field => {
         currentDelivery[field] = document.getElementById(field).value;
     });
     if (!deliveries.find(d => d.ID === currentDelivery.ID)) { deliveries.push(currentDelivery); }
-    renderTable(); showList();
+    saveDeliveries();
+    renderTable(); 
+    showList();
 });
 
 function setFormState() {
@@ -97,4 +128,5 @@ function updateProgress() {
     });
 }
 
+loadDeliveries();
 renderTable();
