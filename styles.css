@@ -34,6 +34,17 @@
         padding: 20px;
     }
 
+    #material-list div {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+
+    #material-list input {
+        flex: 1;
+        padding: 4px;
+    }
+
     .screen {
         display: none;
     }
@@ -64,7 +75,6 @@
         align-items: center;
         margin-bottom: 20px;
     }
-
     .progress-step {
         position: relative;
         text-align: center;
@@ -87,7 +97,7 @@
         content: '';
         position: absolute;
         top: 29px;
-        left: 50%;
+        left: 0%;
         transform: translateX(-50%);
         width: 100%;
         height: 4px;
@@ -96,12 +106,13 @@
     }
 
     .progress-step:first-child:after {
-        left: 50%;
-        width: 50%;
+        left: 100%;
+        width: 100%;
     }
 
     .progress-step:last-child:after {
-        width: 50%;
+        left: 0%;
+        width: 100%;
     }
 
     .progress-step.completed:before,
