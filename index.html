@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Delivery Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav id='sidebar'>
+    <ul>
+      <li><a href='#' id='nav-list'>Listagem</a></li>
+      <li><a href='#' id='nav-detail'>Detalhes</a></li>
+    </ul>
+  </nav>
+  <div id='content'>
+    <div id='list-screen' class='screen active'>
+      <h1>Entregas</h1>
+      <button id='new-delivery'>Nova Entrega</button>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>ZVGP</th><th>ZRGP</th><th>Data Entrega</th><th>Status</th><th>Ações</th></tr>
+        </thead>
+        <tbody id='delivery-table-body'></tbody>
+      </table>
+    </div>
+    <div id='detail-screen' class='screen'>
+      <div class='progress-container'>
+        <div class='progress-step' data-status='Aguardando'>Aguardando</div>
+        <div class='progress-step' data-status='Separado'>Separado</div>
+        <div class='progress-step' data-status='Coletado'>Coletado</div>
+      </div>
+      <h1 id='detail-title'>Detalhes da Entrega</h1>
+      <form id='detail-form'>
+        <fieldset id='general-fieldset'><legend>Geral</legend>
+          <label>ID: <input type='text' id='ID' disabled></label><br>
+          <label>ZVGP: <input type='text' id='ZVGP'></label><br>
+          <label>ZRGP: <input type='text' id='ZRGP'></label><br>
+          <label>Data Coleta: <input type='date' id='Data_Coleta'></label><br>
+          <label>Data Entrega: <input type='date' id='Data_Entrega'></label><br>
+          <label>Status: <select id='Status'><option value='Aguardando'>Aguardando</option><option value='Separado'>Separado</option><option value='Coletado'>Coletado</option></select></label>
+        </fieldset>
+        <fieldset id='address-fieldset'><legend>Endereços</legend>
+          <label>Coleta: <input type='text' id='Endereco_Coleta'></label><br>
+          <label>Entrega: <input type='text' id='Endereco_Entrega'></label>
+        </fieldset>
+        <fieldset id='commercial-fieldset'><legend>Comercial</legend>
+          <label>Incoterms: <input type='text' id='Incoterms'></label><br>
+          <label>Cotação: <input type='text' id='Cotacao'></label>
+        </fieldset>
+        <fieldset id='material-fieldset'><legend>Materiais</legend>
+          <div id='material-list'></div>
+          <button type='button' id='add-material'>Adicionar Material</button>
+        </fieldset>
+        <button type='button' id='save-button'>Salvar</button>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
