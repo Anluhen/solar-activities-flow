@@ -1,0 +1,15 @@
+[
+  {
+    "ID":1,
+    "ZVGP":"Z001",
+    "ZRGP":"R001",
+    "Data_Coleta":"2025-06-10",
+    "Data_Entrega":"2025-06-15",
+    "Status":"Aguardando",
+    "Endereco_Coleta":"Site A",
+    "Endereco_Entrega":"Site B",
+    "Incoterms":"FOB",
+    "Cotacao":"C123",
+    "Material":["Painel","Estrutura"]
+  }
+]

@@ -1,7 +1,4 @@
-// Dados de exemplo
-let deliveries = [
-    { ID: 1, ZVGP: 'Z001', ZRGP: 'R001', Data_Coleta: '2025-06-10', Data_Entrega: '2025-06-15', Status: 'Aguardando', Endereco_Coleta: 'Site A', Endereco_Entrega: 'Site B', Incoterms: 'FOB', Cotacao: 'C123', Material: ['Painel', 'Estrutura'] }
-];
+let deliveries = [];
 let currentDelivery = null;
 const tableBody = document.getElementById('delivery-table-body');
 const listScreen = document.getElementById('list-screen');
@@ -75,19 +72,24 @@ function renderMaterials() {
 
 document.getElementById('add-material').addEventListener('click', () => { if (currentDelivery.Status === 'Aguardando') { currentDelivery.Material.push(''); renderMaterials(); } });
 document.getElementById('Status').addEventListener('change', () => { currentDelivery.Status = document.getElementById('Status').value; setFormState(); updateProgress(); });
-document.getElementById('save-button').addEventListener('click', () => {
-    ['ZVGP', 'ZRGP', 'Data_Coleta', 'Data_Entrega', 'Endereco_Coleta', 'Endereco_Entrega', 'Incoterms', 'Cotacao'].forEach(field => {
-        currentDelivery[field] = document.getElementById(field).value;
-    });
-    if (!deliveries.find(d => d.ID === currentDelivery.ID)) { deliveries.push(currentDelivery); }
-    renderTable(); showList();
-});
+
+// wire up save button
+document.getElementById('save-button')
+  .addEventListener('click', () => {
+    // copy fields → currentDelivery …
+    if (!deliveries.find(d => d.ID === currentDelivery.ID)) {
+      deliveries.push(currentDelivery);
+    }
+    persist()
+      .then(() => { renderTable(); showList(); })
+      .catch(console.error);
+  });
 
 function setFormState() {
     const status = currentDelivery.Status;
     form.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
     if (status === 'Separado') { document.querySelectorAll('#material-fieldset input,#material-fieldset button').forEach(el => el.disabled = true); }
-    if (status === 'Coletado') { form.querySelectorAll('input, select, button').forEach(el => { if (el.id !== 'Status') el.disabled = true; }); }
+    if (status === 'Coletado') { form.querySelectorAll('input, select, button').forEach(el => { if (el.id !== 'Status' && el.id !== 'save-button') el.disabled = true; }); }
 }
 
 function updateProgress() {
@@ -98,3 +100,22 @@ function updateProgress() {
 }
 
 renderTable();
+
+// load from server
+function load() {
+  fetch('/api/deliveries')
+    .then(r => r.json())
+    .then(data => { deliveries = data; renderTable(); });
+}
+
+// save entire list back to server
+function persist() {
+  return fetch('/api/deliveries', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(deliveries)
+  });
+}
+
+// on load:
+load();
