@@ -1,0 +1,100 @@
+// Dados de exemplo
+let deliveries = [
+    { ID: 1, ZVGP: 'Z001', ZRGP: 'R001', Data_Coleta: '2025-06-10', Data_Entrega: '2025-06-15', Status: 'Aguardando', Endereco_Coleta: 'Site A', Endereco_Entrega: 'Site B', Incoterms: 'FOB', Cotacao: 'C123', Material: ['Painel', 'Estrutura'] }
+];
+let currentDelivery = null;
+const tableBody = document.getElementById('delivery-table-body');
+const listScreen = document.getElementById('list-screen');
+const detailScreen = document.getElementById('detail-screen');
+const navList = document.getElementById('nav-list');
+const navDetail = document.getElementById('nav-detail');
+const newBtn = document.getElementById('new-delivery');
+const form = document.getElementById('detail-form');
+const steps = document.querySelectorAll('.progress-step');
+
+function renderTable() {
+    tableBody.innerHTML = '';
+    deliveries.forEach(del => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${del.ID}</td><td>${del.ZVGP}</td><td>${del.ZRGP}</td><td>${del.Data_Entrega}</td><td>${del.Status}</td><td><button data-id='${del.ID}' class='view-btn'>Ver</button></td>`;
+        tableBody.appendChild(tr);
+    });
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.id);
+            currentDelivery = deliveries.find(d => d.ID === id);
+            showDetail();
+        });
+    });
+}
+
+function showDetail() {
+    listScreen.classList.remove('active');
+    detailScreen.classList.add('active');
+    populateForm();
+    updateProgress();
+}
+
+function showList() {
+    detailScreen.classList.remove('active');
+    listScreen.classList.add('active');
+}
+
+navList.addEventListener('click', e => { e.preventDefault(); showList(); });
+navDetail.addEventListener('click', e => { e.preventDefault(); if (currentDelivery) showDetail(); });
+newBtn.addEventListener('click', () => {
+    currentDelivery = { ID: deliveries.length + 1, ZVGP: '', ZRGP: '', Data_Coleta: '', Data_Entrega: '', Status: 'Aguardando', Endereco_Coleta: '', Endereco_Entrega: '', Incoterms: '', Cotacao: '', Material: [] };
+    showDetail();
+});
+
+function populateForm() {
+    form.reset();
+    document.getElementById('ID').value = currentDelivery.ID;
+    ['ZVGP', 'ZRGP', 'Data_Coleta', 'Data_Entrega', 'Endereco_Coleta', 'Endereco_Entrega', 'Incoterms', 'Cotacao'].forEach(field => {
+        document.getElementById(field).value = currentDelivery[field];
+    });
+    document.getElementById('Status').value = currentDelivery.Status;
+    renderMaterials();
+    setFormState();
+}
+
+function renderMaterials() {
+    const listDiv = document.getElementById('material-list');
+    listDiv.innerHTML = '';
+    currentDelivery.Material.forEach((mat, idx) => {
+        const div = document.createElement('div');
+        const inp = document.createElement('input'); inp.value = mat; inp.disabled = (currentDelivery.Status !== 'Aguardando'); inp.dataset.idx = idx;
+        inp.addEventListener('input', e => { currentDelivery.Material[e.target.dataset.idx] = e.target.value; });
+        div.appendChild(inp);
+        if (currentDelivery.Status === 'Aguardando') {
+            const rm = document.createElement('button'); rm.textContent = 'X'; rm.addEventListener('click', () => { currentDelivery.Material.splice(idx, 1); renderMaterials(); }); div.appendChild(rm);
+        }
+        listDiv.appendChild(div);
+    });
+}
+
+document.getElementById('add-material').addEventListener('click', () => { if (currentDelivery.Status === 'Aguardando') { currentDelivery.Material.push(''); renderMaterials(); } });
+document.getElementById('Status').addEventListener('change', () => { currentDelivery.Status = document.getElementById('Status').value; setFormState(); updateProgress(); });
+document.getElementById('save-button').addEventListener('click', () => {
+    ['ZVGP', 'ZRGP', 'Data_Coleta', 'Data_Entrega', 'Endereco_Coleta', 'Endereco_Entrega', 'Incoterms', 'Cotacao'].forEach(field => {
+        currentDelivery[field] = document.getElementById(field).value;
+    });
+    if (!deliveries.find(d => d.ID === currentDelivery.ID)) { deliveries.push(currentDelivery); }
+    renderTable(); showList();
+});
+
+function setFormState() {
+    const status = currentDelivery.Status;
+    form.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
+    if (status === 'Separado') { document.querySelectorAll('#material-fieldset input,#material-fieldset button').forEach(el => el.disabled = true); }
+    if (status === 'Coletado') { form.querySelectorAll('input, select, button').forEach(el => { if (el.id !== 'Status') el.disabled = true; }); }
+}
+
+function updateProgress() {
+    const order = ['Aguardando', 'Separado', 'Coletado'];
+    steps.forEach(step => {
+        step.classList.toggle('completed', order.indexOf(step.dataset.status) <= order.indexOf(currentDelivery.Status));
+    });
+}
+
+renderTable();
